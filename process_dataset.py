@@ -1,4 +1,4 @@
-import P-SBIR
+from P-SBIR import *
 import cv2
 import numpy as np
 import sys
