@@ -13,7 +13,7 @@ def feature_extraction(data_directory):
     list_category = os.listdir(data_directory)
     for category in list_category:
         list_name = os.listdir(data_directory + "/" + category )
-        for name in category:
+        for name in list_name:
             print (name)
             img = cv2.imread(data_directory + '/' + category + '/' + name)
             kp, des = sift.detectAndCompute(img, None)
