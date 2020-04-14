@@ -3,7 +3,7 @@ import numpy as np
 import sys
 import os
 import pickle
-
+import pqkmeans
 # extract feature of data ( data_directory = "image" || "edge || "sketch_queries" )
 def feature_extraction(data_directory):
     sift = cv2.xfeatures2d.SIFT_create()
@@ -17,7 +17,7 @@ def feature_extraction(data_directory):
             print (name)
             img = cv2.imread(data_directory + '/' + category + '/' + name)
             kp, des = sift.detectAndCompute(img, None)
-            if len(des) == 0:
+            if des is None:
                 print(name)
                 continue
             list_des += [des]
@@ -40,7 +40,7 @@ def np_array_to_vStack(data_directory):
 
 #create encoder and kmean model
 def create_model(data_directory): #(data_directory = "image" || "edge")
-    X = np.load(data_director + 'v_stack_des.npy', allow_pickle = True)  
+    X = np.load(data_directory + '_v_stack_des.npy', allow_pickle = True)  
     # n_sample = X.shape[0]
     # k = n_sample/100
 
@@ -53,7 +53,7 @@ def create_model(data_directory): #(data_directory = "image" || "edge")
     print(data_directory + '>>: done transform data')
     print (X_pqcode.shape)
 
-    kmeans = pqkmeans.clustering.PQKMeans(encoder=encoder, k=50000)
+    kmeans = pqkmeans.clustering.PQKMeans(encoder=encoder, k=400)
     kmeans.fit(X_pqcode)
     pickle.dump(kmeans, open(data_directory + '_kmeans.pkl', 'wb'))
     pickle.dump(encoder, open(data_directory + '_encoder.pkl', 'wb'))
@@ -74,14 +74,14 @@ def cluster(data_directory): #(data_directory = "image" || "edge " || "sketch_qu
         des_clusterd = kmeans_dumped.predict(des_tranform)
         list_des_clustered += [des_clusterd]
     print(data_directory + '>>: done convert')
-    np.save(data_directory + "_des_clusterd.npy", np.array(list_des_clustered))
+    np.save(data_directory + "_des_clustered.npy", np.array(list_des_clustered))
 
 #caculate histogram 
 def cal_his(data_directory):
-    list_des_clustered = np.load(data_directory + "des_clusterd.npy",allow_pickle = True)
+    list_des_clustered = np.load(data_directory + "_des_clustered.npy",allow_pickle = True)
     list_hist = []
     for i, des_clustered in enumerate(list_des_clustered):
-        hist = np.histogram(des_clustered, bins = np.arange(50001))[0]
+        hist = np.histogram(des_clustered, bins = np.arange(401))[0]
         hist = list(hist)
         list_hist += [hist]
     list_hist = np.array(list_hist)
